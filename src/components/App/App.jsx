@@ -2,21 +2,22 @@ import { Button } from 'components/Button/Button';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 import { Loader } from 'components/Loader/Loader';
 import { Searchbar } from 'components/Searchbar/Searchbar';
-import { Component } from 'react';
 import { fetchImages } from 'services/pixabayApi';
 import { Wrapper } from './App.styled';
 import { ToastContainer } from 'react-toastify';
+import { useState } from 'react';
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    images: [],
-    isLoading: false,
-    totalImages: 0,
-  };
+export const App = () => {
+  const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const [images, setImages] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [totalImages, setTotalImages] = useState(0)
+  const [error, setError] = useState(null)
 
-  componentDidUpdate(_, prevState) {
+ 
+
+  const componentDidUpdate(_, prevState) {
     const { query, page } = this.state;
     if (prevState.query !== query || prevState.page !== page) {
       fetchImages(query, page)
@@ -33,34 +34,37 @@ export class App extends Component {
     }
   }
 
-  handleSubmit = query => {
-    this.setState({ query, isLoading: true, page: 1 });
+const  handleSubmit = query => {
+    setQuery(query);
+    setIsLoading(true);
+    setPage(1);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1, isLoading: true }));
+  const handleLoadMore = () => {
+  setIsLoading(true)
+    setPage(prevPage => prevPage + 1);
   };
 
-  renderButtonOrLoader = () => {
-    return this.state.isLoading ? (
+const   renderButtonOrLoader = () => {
+    return isLoading ? (
       <Loader />
     ) : (
-      !!this.state.images.length &&
-        this.state.images.length < this.state.totalImages && (
+      !!images.length &&
+        images.length < totalImages && (
           <Button onLoadMore={this.handleLoadMore} />
         )
     );
   };
-  render() {
-    const { images } = this.state;
+  
+    
 
     return (
       <>
-        <Searchbar onSubmit={this.handleSubmit} />
+        <Searchbar onSubmit={handleSubmit} />
         <ImageGallery images={images} />
-        {<Wrapper>{this.renderButtonOrLoader()}</Wrapper>}
+        {<Wrapper>{renderButtonOrLoader()}</Wrapper>}
         <ToastContainer theme="colored" position="top-right" autoClose={3000} />
       </>
     );
   }
-}
+
